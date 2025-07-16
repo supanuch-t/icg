@@ -1,0 +1,37 @@
+<body style="margin:0;overflow:hidden">
+<script type="module">
+import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth, innerHeight);  document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 100);
+camera.position.set(0,1,25);
+
+const COUNT = 5;                         
+const geo   = new THREE.BoxGeometry(.4,.4,.4);
+const mat   = new THREE.MeshNormalMaterial();
+const mesh  = new THREE.InstancedMesh(geo, mat, COUNT);   // ★ instanced
+scene.add(mesh);
+
+const dummy = new THREE.Object3D();           // ช่วยตั้ง matrix
+for(let i=0;i<COUNT;i++){
+  dummy.position.set(
+    (Math.random()-.5)*20,
+    (Math.random()-.5)*20,
+    (Math.random()-.5)*20
+  );
+  dummy.rotation.set(Math.random()*Math.PI, Math.random()*Math.PI, 0);
+  dummy.updateMatrix();
+  mesh.setMatrixAt(i, dummy.matrix);
+}
+
+function animate(t){
+  mesh.rotation.y = t*0.0003;                 // หมุนก้อน instanced ทั้งกลุ่ม
+  renderer.render(scene,camera);
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>

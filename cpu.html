@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CPU Graphics</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        canvas {
+            border: 1px solid black;
+            scale: 3;
+            image-rendering: pixelated;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="myCanvas" width="200" height = "200"></canvas>
+    <script>
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+        const imageData = ctx.createImageData(canvas.width, canvas.height);
+        const data = imageData.data;
+
+        const spaceInvaderSprite = [
+            [0, 0, 1, 0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 1, 0, 0, 0],
+            [0, 0, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 0],
+            [1, 1, 0, 1, 1, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1],
+            [0, 1, 0, 1, 1, 0, 1, 0],
+        ];
+
+    
+    function putPixel(x,y,r,g,b,a){
+        const index = (y * canvas.width + x) * 4;
+        data[index] = r;
+        data[index+1] = g;
+        data[index+2] = b;
+        data[index+3] = a;
+    }
+    function drawLine(x1, y1, x2, y2, r, g, b, a) {
+            const dx = x2 - x1;
+            const dy = y2 - y1;
+            if (Math.abs(dx) > Math.abs(dy)) { // Iterate along x
+                const m = dy / dx;
+                const c = y1 - m * x1;
+                for (let x = Math.min(x1, x2); x <= Math.max(x1, x2); x++) {
+                    const y = Math.round(m * x + c);
+                    putPixel(x, y, r, g, b, a);
+                }
+            } else { // Iterate along y
+                const m = dx / dy; // Reciprocal slope for y-iteration
+                const c = x1 - m * y1;
+                for (let y = Math.min(y1, y2); y <= Math.max(y1, y2); y++) {
+                    const x = Math.round(m * y + c);
+                    putPixel(x, y, r, g, b, a);
+                }
+            }
+            ctx.putImageData(imageData, 0, 0); // อัปเดตหลังจากวาดเสร็จ
+        }
+    function drawRect(x1, y1, x2, y2, r, g, b, a) {
+    drawLine(x1, y1, x2, y1, r, g, b, a);
+    drawLine(x1, y2, x2, y2, r, g, b, a);
+    drawLine(x1, y1, x1, y2, r, g, b, a);
+    drawLine(x2, y1, x2, y2, r, g, b, a);
+    }
+
+
+function drawCircle(cx, cy, radius, r, g, b, a) {
+    for (let angle = 0; angle < 360; angle++) {
+        const rad = angle * Math.PI / 180;
+        for (let r0 = 0; r0 <= radius; r0++) {
+            const x = Math.round(cx + r0 * Math.cos(rad));
+            const y = Math.round(cy + r0 * Math.sin(rad));
+            putPixel(x, y, r, g, b, a);
+        }
+    }
+}
+
+
+
+
+        drawRect(50,50,150,150,0,255,0,255);
+      drawCircle(100, 100, 40, 0, 0, 255, 255); // center (100,100), radius 40   
+function drawSprite(xOffset, yOffset, spriteArray, r, g, b, a) {
+            for (let y = 0; y < spriteArray.length; y++) {
+                for (let x = 0; x < spriteArray[y].length; x++) {
+                    if (spriteArray[y][x] === 1) {
+                        putPixel(xOffset + x, yOffset + y, r, g, b, a);
+                    }
+                }
+            }
+            ctx.putImageData(imageData, 0, 0);
+        }
+
+        let posX = 0;
+        let dirX = 1;
+        function animate(){
+
+            if(posX >= 200){
+                dirX =-1;
+            }
+            if(posX <= 0){
+               dirX += 1;
+            }
+
+            //posX++;
+            posX += dirX;
+            drawCircle(posX,100,21,255,255,255,255);
+            drawCircle(posX,100,20,255,255,0,255);
+            ctx.putImageData(imageData, 0, 0); // อัปเดตหลังจากวาดเสร็จ
+            requestAnimationFrame(animate);
+        }
+
+   
+        animate();
+ ctx.putImageData(imageData, 0, 0);
+    </script>
+</body>
+</html>
